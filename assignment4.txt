@@ -1,0 +1,154 @@
+1.A
+
+program:
+
+INCLUDE Irvine32.inc
+
+.386
+.model flat,stdcall
+.stack 4096
+ExitProcess proto,dwExitCode:dword
+
+
+.data
+    source BYTE "This is the source string", 0
+	target BYTE SIZEOF source DUP('#')
+       
+.code
+main proc
+		
+        mov esi,0
+        mov edi,LENGTHOF source - 2
+        mov ecx,SIZEOF source
+        mov target[edi+1],0 ; adding the terminating 0
+
+    L1:
+        mov al,source[esi]
+        mov target[edi],al
+        inc esi
+        dec edi
+        loop L1
+        mov edx, OFFSET target
+		call dumpregs
+        call WriteString
+
+        exit
+main endp
+end main
+
+program output:
+
+  EAX=75CB3400  EBX=7EFDE000  ECX=00000000  EDX=0040601A
+  ESI=0000001A  EDI=FFFFFFFE  EBP=0018FF94  ESP=0018FF8C
+  EIP=00403550  EFL=00000282  CF=0  SF=1  ZF=0  OF=0  AF=0  PF=0
+
+gnirts ecruos eht si sihTPress any key to continue . . .
+
+
+
+
+--------------------------------------------------------------------
+1.B
+
+Program:
+
+INCLUDE Irvine32.inc
+
+.386
+.model flat,stdcall
+.stack 4096
+ExitProcess proto,dwExitCode:dword
+
+
+.data
+    source BYTE "This is the source string", 0
+	target BYTE SIZEOF source DUP('#')
+	rot_target BYTE SIZEOF source DUP('#')
+
+.code
+main proc
+		mov esi,0
+        mov edi,LENGTHOF source - 2
+        mov ecx,SIZEOF source
+        mov target[edi+1],0 ; adding the terminating 0
+
+    L1:
+        mov al,source[esi]
+        mov target[edi],al
+        inc esi
+        dec edi
+        loop L1
+        mov edx, OFFSET target
+		call dumpregs
+        call WriteString
+
+		; Start the second loop
+        mov esi,0
+        mov edi,4
+        mov ecx,SIZEOF target -1
+        mov rot_target[ecx],0 ; adding the terminating 0
+        mov ecx,SIZEOF target - 5
+
+    L2:
+        mov al,target[esi]
+        mov rot_target[edi],al
+        inc esi
+        inc edi
+        loop L2
+        mov edx, OFFSET rot_target
+
+
+        mov esi,SIZEOF target - 2
+        mov edi,0
+        mov ecx,4
+    L3:
+        mov al,target[esi]
+        mov rot_target[edi],al
+        dec esi
+        inc edi
+        loop L3
+        mov edx, OFFSET rot_target
+
+		call dumpregs
+        call WriteString
+
+        exit
+main endp
+end main
+
+
+
+.code
+foostring proc
+        mov esi,0
+        mov edi,LENGTHOF source - 2
+        mov ecx,SIZEOF source
+        mov target[edi+1],0 ; adding the terminating 0
+
+    L1:
+        mov al,source[esi]
+        mov target[edi],al
+        inc esi
+        dec edi
+        loop L1
+        mov edx, OFFSET target
+		call dumpregs
+        call WriteString
+
+        exit
+foostring endp
+
+
+Program Output:
+  EAX=75CB3400  EBX=7EFDE000  ECX=00000000  EDX=004068DA
+  ESI=0000001A  EDI=FFFFFFFE  EBP=0018FF94  ESP=0018FF8C
+  EIP=00403640  EFL=00000282  CF=0  SF=1  ZF=0  OF=0  AF=0  PF=0
+
+gnirts ecruos eht si sihT
+  EAX=75CB3473  EBX=7EFDE000  ECX=00000000  EDX=004068F4
+  ESI=00000014  EDI=00000004  EBP=0018FF94  ESP=0018FF8C
+  EIP=0040369E  EFL=00000202  CF=0  SF=0  ZF=0  OF=0  AF=0  PF=0
+
+Thisgnirts ecruos eht si Press any key to continue . . .
+
+
