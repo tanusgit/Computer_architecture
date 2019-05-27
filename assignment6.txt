@@ -1,0 +1,130 @@
+A. Program:
+
+; Encryption Program               (Encrypt.asm)
+; This program use encryption key consisting of multiple characters.  And use this key to encrypt and decrypt
+; the plaintext by XOR(ing) each character of the key against a corresponding  byte in the message. 
+; This program repeats the key as many times as necessary until all plain text bytes are translated. 
+
+INCLUDE Irvine32.inc
+BUFMAX = 128     	; maximum buffer size
+
+.data
+sPrompt  BYTE  "Enter the plain text: ",0
+kPrompt	 BYTE  "Enter the key: ",0
+sEncrypt BYTE  "Cipher text:          ",0
+sDecrypt BYTE  "Decrypted:            ",0
+buffer   BYTE   BUFMAX+1 DUP(0)
+bufSize  DWORD  ?
+key		 BYTE   BUFMAX+1 DUP(0)
+keySize  DWORD  ?
+
+.code
+main PROC
+	call	InputTheString		; input the plain text
+	call	InputTheKey		; input the key
+	call	TranslateBuffer	; encrypt the buffer
+	mov	edx,OFFSET sEncrypt	; display encrypted message
+	call	DisplayMessage
+	call	TranslateBuffer  	; decrypt the buffer
+	mov	edx,OFFSET sDecrypt	; display decrypted message
+	call	DisplayMessage
+
+	exit
+main ENDP
+
+;-----------------------------------------------------
+InputTheString PROC
+;
+; Prompts user for a plaintext string. Saves the string 
+; and its length.
+; Receives: nothing
+; Returns: nothing
+;-----------------------------------------------------
+	pushad
+	mov	edx,OFFSET sPrompt	; display a prompt
+	call	WriteString
+	mov	ecx,BUFMAX		; maximum character count
+	mov	edx,OFFSET buffer   ; point to the buffer
+	call	ReadString         	; input the string
+	mov	bufSize,eax        	; save the length
+	call	Crlf
+	popad
+	ret
+InputTheString ENDP
+
+;-----------------------------------------------------
+InputTheKey PROC
+;
+; Prompts user for a plaintext string. Saves the string 
+; and its length.
+; Receives: nothing
+; Returns: nothing
+;-----------------------------------------------------
+	pushad
+	mov	edx,OFFSET kPrompt	; display a prompt
+	call	WriteString
+	mov	ecx,BUFMAX		; maximum character count
+	mov	edx,OFFSET key   ; point to the key
+	call	ReadString         	; input the string
+	mov	keySize,eax        	; save the length
+	call	Crlf
+	popad
+	ret
+InputTheKey ENDP
+
+;-----------------------------------------------------
+DisplayMessage PROC
+;
+; Displays the encrypted or decrypted message.
+; Receives: EDX points to the message
+; Returns:  nothing
+;-----------------------------------------------------
+	pushad
+	call	WriteString
+	mov	edx,OFFSET buffer	; display the buffer
+	call	WriteString
+	call	Crlf
+	call	Crlf
+	popad
+	ret
+DisplayMessage ENDP
+
+;-----------------------------------------------------
+TranslateBuffer PROC
+;
+; Translates the string by exclusive-ORing each
+; byte with the encryption key byte.
+; Receives: nothing
+; Returns: nothing
+;-----------------------------------------------------
+	pushad
+	mov	ecx,bufSize		; loop counter
+	mov	esi,0			; index 0 in buffer
+	mov eax,0			; index 0 in key
+L1:
+	mov dl, key[eax]
+	xor	buffer[esi],dl	; translate a byte
+	inc	esi				; point to next byte
+	mov edx, 0
+	inc eax
+	div keySize         ; edx = remainder of (eax/keySize)
+	mov eax, edx		; mov the remainder in eax
+	loop	L1
+
+	popad
+	ret
+TranslateBuffer ENDP
+END main
+
+
+
+Output of the program:
+Enter the plain text: This is a Plaintext message
+
+Enter the key: ABXmv#7
+
+Cipher text:          §*1▲VJDa#x=→B^/6=§☻♥Z$1+♀◄F
+
+Decrypted:            This is a Plaintext message
+
+Press any key to continue . . .
