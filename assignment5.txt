@@ -1,0 +1,56 @@
+
+INCLUDE Irvine32.inc
+;Name: Tanusree Debnath
+;This program calls a recursive procedure. This program prompts the user and 
+;then get an integer value for the number of times they want to allow the recursion to continue.
+.386
+.model flat,stdcall
+.stack 4096
+ExitProcess proto,dwExitCode:dword
+
+.data
+	intVal sdword ?
+   caption byte "You have to insert an integer", 0
+   question byte "how many times you want to allow the recursion to continue?",0
+
+.code
+recur proc
+mov ecx, eax ; moving return vaue from eax to ecx
+	loop L1							; jump to L1 until ecx is zero
+	ret
+L1:									; mark beginning of loop
+	call dumpregs
+	sub eax, 1						; Subtract 1 before recursion
+	call WriteInt					; Write the count of the loop
+	call recur						; Recursion
+ret
+recur endp
+
+.code
+main proc
+mov ebx, offset caption
+mov edx, offset question
+call MsgBox  ; displays a popup message box
+call ReadInt ; reads 32bit signed decimal integer from the key board
+add eax, 1   ; Add 1 to have number of recursion same as requested
+call recur
+exit
+main endp
+end main
+
+
+
+
+program output:
+2
+
+  EAX=00000003  EBX=00406004  ECX=00000002  EDX=00406022
+  ESI=00000000  EDI=00000000  EBP=0018FF94  ESP=0018FF88
+  EIP=0040361A  EFL=00000206  CF=0  SF=0  ZF=0  OF=0  AF=0  PF=1
+
++2
+  EAX=00000002  EBX=00406004  ECX=00000001  EDX=00406022
+  ESI=00000000  EDI=00000000  EBP=0018FF94  ESP=0018FF84
+  EIP=0040361A  EFL=00000202  CF=0  SF=0  ZF=0  OF=0  AF=0  PF=0
+
++1Press any key to continue . . .
