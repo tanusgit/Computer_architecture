@@ -1,0 +1,91 @@
+A.
+
+; This program implements a function using the GCD algorithm that involves integer division in a loop, 
+; described by the following pseudocode:
+;int GCD(int x, int y)
+;{
+;   x = abs(x)
+;	y = abs(y) 
+;   do
+;   {
+;      int n = x % y
+;      x = y
+;      y = n
+;   } while(y > 0)
+;   return x
+;}
+
+INCLUDE Irvine32.inc
+
+
+.data
+sPrompt  BYTE  "Enter the numbers to compute GCD: ",0
+sAnswer  BYTE  "GCD:            ",0
+num1 DWORD ?
+num2 DWORD ?
+
+.code
+main PROC
+   mov ecx, 3
+L2:
+	push ecx
+	call	InputTheKey		; input the key
+   ;do
+   ;{
+   ;   int n = x % y
+   ;   x = y
+   ;   y = n
+   ;} while(y > 0)
+   ; x = num1, y = num2
+   mov eax, num1
+   mov ebx, num2
+   mov ecx, num2
+   xor edx, edx		; edx=0
+   ; no need to exchange num1 and num2 when num1<num2
+L1:
+   	div ebx				; edx = remainder of (eax/ebx)
+	mov eax, ebx		; make divisor the dividend
+	mov ebx, edx		; make remainder the divisor
+	xor edx, edx		; edx=0
+	test ebx, ebx		; for loop
+	loopnz	L1
+	call WriteInt		; The answer is already in eax
+	pop ecx
+	loop L2
+	exit
+main ENDP
+
+;-----------------------------------------------------
+InputTheKey PROC
+;
+; Prompts user for entering two  numbers. Stores first number in num1 and second number in num2
+; Receives: nothing
+; Returns: nothing
+;-----------------------------------------------------
+	pushad
+	mov	edx,OFFSET sPrompt	; display a prompt
+	call	WriteString
+	call	ReadInt
+	mov		num1, eax		; get num1
+	;call	WriteString
+	call	ReadInt
+	mov		num2, eax		; get num2
+	call	Crlf
+	popad
+	ret
+InputTheKey ENDP
+
+END main
+
+
+program output:
+Enter the numbers to compute GCD: 8
+6
+
++2Enter the numbers to compute GCD: 10
+5
+
++5Enter the numbers to compute GCD: 2
+3
+
++1Press any key to continue . . .
