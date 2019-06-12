@@ -1,0 +1,124 @@
+A. Program 
+;name Tanusree Debnath
+; This program  Main:  Create three arrays, each of signed double-words.  The first two will hold integer values
+; that will be sent to the GCD function.  Each element xi in the first array corresponds with each yi in the second array
+; to form a pair.  Find the GCD, from the procedure, and store the resulting element zi in the third array. Use the pairs
+; (20, 5), (9,7), (432, 226), (24, 18), (49, 7), (339, 9), (63, 9).  Display each pair and the resulting GCD on the screen 
+;each time.
+
+; Procedure 1: Use recursion to implement Euclid's algorithm for finding the GCD.
+;(info in the video for this module) The function should accept two integers and return an integer.
+
+
+; Procedure 2: Accept two arrays of signed double-words and a third parameter that indicates the length of the two arrays. 
+; Send it the y array (second parameter) and the z array (GCD result) from the main.  For each element yi in the first array,
+; if the corresponding zi in the second array is equal, increment a count.  Return a count of the number of matching array
+; elements in EAX. Use the INVOKE statement to call your procedure and pass stack parameters. 
+; Create a PROTO declaration for the procedure.  Save and restore any registers (other than EAX) changed by your procedure.
+
+
+INCLUDE Irvine32.inc 
+.data
+str1 BYTE "The Greatest common divisior is: ",0
+arrayx SDWORD 20,9,432,24,49,339,63
+arrayxLen  = ($ - arrayx) / 4
+arrayy SDWORD 5,7,226,18,7,9,9
+arrayyLen  = ($ - arrayy) / 4
+arrayz SDWORD 0,0,0,0,0,0,0
+arrayzLen  = ($ - arrayz) / 4
+comma BYTE ",",0
+
+.code
+main PROC ; calls the procedures 
+call Clrscr ; clears the screen
+
+; finds the GCD of (20, 5)
+	mov  esi,OFFSET arrayx	; point to the array
+	mov  ecx,arrayxLen		; set loop counter
+L1:	mov  eax,[esi]			; get integer from array
+	call WriteHex			; write it in hexadecimal
+	mov  edx,OFFSET comma	; display a comma
+	call WriteString
+	add  esi,TYPE arrayx	; point to next array position
+	loop L1
+
+push ebp
+mov ebp, esp
+;push 20
+;push 5
+mov eax, 20
+mov ebx, 5
+call Recur_GCD ; procedure call
+mov ebx,OFFSET str1
+call WriteString ; writes str1
+call WriteDec ; writes GCD in EAX
+call Crlf
+call Crlf
+
+call ReadChar 
+exit 
+main ENDP
+
+
+Recur_GCD PROC USES eax ebx ecx edx
+   ;mov eax, num1
+   ;mov ebx, num2
+   mov ecx, eax
+   xor edx, edx		; edx=0
+   ; no need to exchange num1 and num2 when num1<num2
+L1:
+   	div ebx				; edx = remainder of (eax/ebx)
+	mov eax, ebx		; make divisor the dividend
+	mov ebx, edx		; make remainder the divisor
+	xor edx, edx		; edx=0
+	test ebx, ebx		; for loop
+	loopnz	L1
+	call WriteInt		; The answer is already in eax
+	ret
+Recur_GCD ENDP
+END main
+
+Recursive_GCD PROC USES eax ebx edx 
+; finds the gcd of two numbers using recursion 
+; Receives: [ebp+12] = dividend, [ebp+8] = divisor ; Returns: EAX= GCD
+; The procedure considers the numbers are absolute values themselves push ebp mov ebp,esp 
+; assigns stack
+
+; pointers 
+; mov eax,[ebp+12] ; EAX: dividend
+; mov ebx,[ebp+8] ; EBX: divisor 
+
+;mov eax, SDWORD PTR [esp-4+12] ; EAX: dividend
+;mov ebx, SDWORD PTR [esp-4+8] ; EBX: divisor 
+
+;calculate the remainder using DIV instruction 
+mov edx,0 ; EDX stores the 
+
+;remainder 
+div ebx ; EAX: quotient, EDX: remainder
+cmp edx,0 ; if remainder=0,
+
+;stop the loop
+ja L1; else continue
+mov eax,ebx ; sets the final GCD in EAX 
+jmp L2
+
+L1:
+;change the dividend and divisor
+mov eax,ebx 
+mov ebx,edx
+call Recursive_GCD ; recursive call 
+
+L2:
+pop ebp
+ret 8 ; free the used
+
+;stack space
+Recursive_GCD ENDP 
+END main
+
+
+
+program output:
+00000014,00000009,000001B0,00000018,00000031,00000153,0000003F,+5,20
+
